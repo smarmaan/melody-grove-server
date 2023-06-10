@@ -33,13 +33,40 @@ async function run() {
       .db("melodyDB")
       .collection("popularCourses");
 
+    const popularInstructorsCollection = client
+      .db("melodyDB")
+      .collection("popularInstructors");
+
     //
     //
     //
     //
     //
+    // popular-courses
+
     app.get("/popular-courses", async (req, res) => {
-      const result = await popularCoursesCollection.find().toArray();
+      const showAll = req.query.showAll === "true";
+
+      let query = popularCoursesCollection.find().sort({ students: -1 });
+      if (!showAll) {
+        query = query.limit(6);
+      }
+
+      const result = await query.toArray();
+      res.send(result);
+    });
+
+    // popular-instructors
+
+    app.get("/popular-instructors", async (req, res) => {
+      const showAll = req.query.showAll === "true";
+
+      let query = popularInstructorsCollection.find().sort({ students: -1 });
+      if (!showAll) {
+        query = query.limit(6);
+      }
+
+      const result = await query.toArray();
       res.send(result);
     });
 
