@@ -56,6 +56,13 @@ async function run() {
       res.send(result);
     });
 
+    // all-courses
+
+    app.get("/all-courses", async (req, res) => {
+      const result = await popularCoursesCollection.findOne().toArray();
+      res.send(result);
+    });
+
     // popular-instructors
 
     app.get("/popular-instructors", async (req, res) => {
