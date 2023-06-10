@@ -37,6 +37,11 @@ async function run() {
       .db("melodyDB")
       .collection("popularInstructors");
 
+    const allCoursesCollection = client.db("melodyDB").collection("allCourses");
+    const allInstructorsCollection = client
+      .db("melodyDB")
+      .collection("allInstructors");
+
     //
     //
     //
@@ -59,7 +64,7 @@ async function run() {
     // all-courses
 
     app.get("/all-courses", async (req, res) => {
-      const result = await popularCoursesCollection.findOne().toArray();
+      const result = await allCoursesCollection.find().toArray();
       res.send(result);
     });
 
@@ -74,6 +79,11 @@ async function run() {
       }
 
       const result = await query.toArray();
+      res.send(result);
+    });
+
+    app.get("/all-instructors", async (req, res) => {
+      const result = await allInstructorsCollection.find().toArray();
       res.send(result);
     });
 
