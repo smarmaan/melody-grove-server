@@ -42,6 +42,7 @@ async function run() {
       .db("melodyDB")
       .collection("allInstructors");
 
+    const reviewsCollection = client.db("melodyDB").collection("reviews");
     //
     //
     //
@@ -82,8 +83,24 @@ async function run() {
       res.send(result);
     });
 
+    // all-instructors
+
     app.get("/all-instructors", async (req, res) => {
       const result = await allInstructorsCollection.find().toArray();
+      res.send(result);
+    });
+
+    //
+    //
+    //
+    //
+    //
+    //
+
+    //  reviews section
+
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewsCollection.find().toArray();
       res.send(result);
     });
 
