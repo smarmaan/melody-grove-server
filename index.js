@@ -29,6 +29,8 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    const usersCollection = client.db("melodyDB").collection("users");
+
     const popularCoursesCollection = client
       .db("melodyDB")
       .collection("popularCourses");
@@ -46,11 +48,35 @@ async function run() {
     const reviewsCollection = client.db("melodyDB").collection("reviews");
 
     const bookedCollection = client.db("melodyDB").collection("booked");
+
     //
     //
     //
     //
     //
+
+    // user related api call methods
+
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+
+      const query = { email: user.email };
+
+      const existingUser = await usersCollection.findOne(query);
+
+      if (existingUser) {
+        return res.send({ message: "User already exists" });
+      }
+
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
     // popular-courses
 
     app.get("/popular-courses", async (req, res) => {
