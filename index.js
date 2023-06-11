@@ -93,7 +93,21 @@ async function run() {
       res.send(result);
     });
 
-    // booked collection
+    // booked collection related api methods
+
+    app.get("/booked-courses", async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+
+      if (!email) {
+        res.send([]);
+      }
+
+      const query = { email: email };
+
+      const result = await bookedCollection.find(query).toArray();
+      res.send(result);
+    });
 
     app.post("/booked-courses", async (req, res) => {
       const item = req.body;
