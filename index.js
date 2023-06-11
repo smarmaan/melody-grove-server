@@ -38,11 +38,14 @@ async function run() {
       .collection("popularInstructors");
 
     const allCoursesCollection = client.db("melodyDB").collection("allCourses");
+
     const allInstructorsCollection = client
       .db("melodyDB")
       .collection("allInstructors");
 
     const reviewsCollection = client.db("melodyDB").collection("reviews");
+
+    const bookedCollection = client.db("melodyDB").collection("booked");
     //
     //
     //
@@ -87,6 +90,16 @@ async function run() {
 
     app.get("/all-instructors", async (req, res) => {
       const result = await allInstructorsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // booked collection
+
+    app.post("/booked-courses", async (req, res) => {
+      const item = req.body;
+      console.log(item);
+
+      const result = await bookedCollection.insertOne(item);
       res.send(result);
     });
 
