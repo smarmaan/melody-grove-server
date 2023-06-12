@@ -303,19 +303,46 @@ async function run() {
     //
     //
 
-    // available Course page api...
-
-    app.get("/available-Courses", async (req, res) => {
-      const isAdmin = req.decoded && req.decoded.role === "admin";
-
-      let query = {};
-      if (!isAdmin) {
-        query = { status: "approved" };
-      }
-
+    //  for every one with the link
+    app.get("/available-Courses-approved", async (req, res) => {
+      const query = { status: "approved" };
       const result = await availableCoursesCollection.find(query).toArray();
       res.send(result);
     });
+
+    //
+    //
+    //
+    //
+
+    // available Course page api...
+
+    app.get("/available-Courses", verifyJWT, verifyAdmin, async (req, res) => {
+      const result = await availableCoursesCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.patch(
+      "/available-Courses/:id",
+      verifyJWT,
+      verifyAdmin,
+      async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            status: "approved",
+          },
+        };
+
+        const result = await availableCoursesCollection.updateOne(
+          filter,
+          updateDoc
+        );
+
+        res.send(result);
+      }
+    );
 
     app.post(
       "/available-Courses",
