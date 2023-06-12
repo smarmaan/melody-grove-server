@@ -93,9 +93,25 @@ async function run() {
       res.send({ token });
     });
 
+    //  middleware created to verify admin credentials...
+
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email;
+
+      const query = { email: email };
+
+      const user = await usersCollection.findOne(query);
+
+      if (user?.role !== "admin") {
+        return res.status(403).send({ error: true, message: "Forbidden User" });
+      }
+
+      next();
+    };
+
     // user related api call methods
 
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyJWT, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
@@ -145,7 +161,7 @@ async function run() {
       res.send(result);
     });
 
-    //   Instructor  related api methods
+    //   Instructor related api methods
 
     app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
