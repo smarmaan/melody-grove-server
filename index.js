@@ -109,6 +109,22 @@ async function run() {
       next();
     };
 
+    //  middleware created to verify Instructor credentials...
+
+    const verifyInstructor = async (req, res, next) => {
+      const email = req.decoded.email;
+
+      const query = { email: email };
+
+      const user = await usersCollection.findOne(query);
+
+      if (user?.role !== "instructor") {
+        return res.status(403).send({ error: true, message: "Forbidden User" });
+      }
+
+      next();
+    };
+
     // user related api call methods
 
     app.get("/users", verifyJWT, async (req, res) => {
