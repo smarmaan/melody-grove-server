@@ -305,6 +305,18 @@ async function run() {
 
     // available Course page api...
 
+    app.get("/available-Courses", async (req, res) => {
+      const isAdmin = req.decoded && req.decoded.role === "admin";
+
+      let query = {};
+      if (!isAdmin) {
+        query = { status: "approved" };
+      }
+
+      const result = await availableCoursesCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.post(
       "/available-Courses",
       verifyJWT,
