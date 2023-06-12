@@ -322,6 +322,8 @@ async function run() {
       res.send(result);
     });
 
+    //  api to approve the courses collection
+
     app.patch(
       "/available-Courses/:id",
       verifyJWT,
@@ -344,6 +346,35 @@ async function run() {
       }
     );
 
+    //  api to deny the courses collection
+
+    // app.patch(
+    //   "/available-Courses/:id",
+    //   verifyJWT,
+    //   verifyAdmin,
+    //   async (req, res) => {
+    //     const id = req.params.id;
+    //     const updates = req.body;
+
+    //     try {
+    //       const updatedCourse =
+    //         await availableCoursesCollection.findByIdAndUpdate(id, updates, {
+    //           new: true,
+    //         });
+
+    //       if (!updatedCourse) {
+    //         return res.status(404).send();
+    //       }
+
+    //       res.send(updatedCourse);
+    //     } catch (error) {
+    //       res.status(500).send(error);
+    //     }
+    //   }
+    // );
+
+    // api to post course
+
     app.post(
       "/available-Courses",
       verifyJWT,
@@ -356,6 +387,30 @@ async function run() {
     );
 
     //
+    app.patch(
+      "/available-Courses/deny/:id",
+      verifyJWT,
+      verifyAdmin,
+      async (req, res) => {
+        const id = req.params.id;
+        const updates = req.body;
+
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            status: "denied",
+            reason: updates.key,
+          },
+        };
+
+        const result = await availableCoursesCollection.updateOne(
+          filter,
+          updateDoc
+        );
+
+        res.send(result);
+      }
+    );
     //
     //
     //
