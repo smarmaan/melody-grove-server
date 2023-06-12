@@ -92,6 +92,21 @@ async function run() {
       res.send(result);
     });
 
+    //   Instructor  related api methods
+
+    app.patch("/users/instructor/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: "instructor",
+        },
+      };
+
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     // popular-courses
 
     app.get("/popular-courses", async (req, res) => {
