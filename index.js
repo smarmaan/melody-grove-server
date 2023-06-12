@@ -78,6 +78,10 @@ async function run() {
 
     const bookedCollection = client.db("melodyDB").collection("booked");
 
+    const availableCoursesCollection = client
+      .db("melodyDB")
+      .collection("availableCourses");
+
     //
     //
     //
@@ -127,7 +131,7 @@ async function run() {
 
     // user related api call methods
 
-    app.get("/users", verifyJWT, async (req, res) => {
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
@@ -291,6 +295,26 @@ async function run() {
 
       res.send(result);
     });
+
+    //
+    //
+    //
+    //
+    //
+    //
+
+    // available Course page api...
+
+    app.post(
+      "/available-Courses",
+      verifyJWT,
+      verifyInstructor,
+      async (req, res) => {
+        const newCourse = req.body;
+        const result = await availableCoursesCollection.insertOne(newCourse);
+        res.send(result);
+      }
+    );
 
     //
     //
