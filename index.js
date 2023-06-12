@@ -3,6 +3,10 @@ const app = express();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
+
+
+
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -258,7 +262,7 @@ async function run() {
 
     app.get("/booked-courses", verifyJWT, async (req, res) => {
       const email = req.query.email;
-      console.log(email);
+      // console.log(email);
 
       if (!email) {
         res.send([]);
@@ -278,18 +282,27 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/booked-courses", async (req, res) => {
-      const item = req.body;
-      console.log(item);
+    app.get("/booked-courses/payment/:id", verifyJWT, async (req, res) => {
+      const id = req.query.id;
 
-      const result = await bookedCollection.insertOne(item);
+      const query = { _id: id };
+
+      const result = await bookedCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/booked-courses", async (req, res) => {
+      const course = req.body;
+      console.log(course);
+
+      const result = await bookedCollection.insertOne(course);
       res.send(result);
     });
 
     app.delete("/booked-courses/:id", async (req, res) => {
       const id = req.params.id;
 
-      const query = { _id: new ObjectId(id) };
+      const query = { _id: id };
 
       const result = await bookedCollection.deleteOne(query);
 
@@ -346,33 +359,6 @@ async function run() {
       }
     );
 
-    //  api to deny the courses collection
-
-    // app.patch(
-    //   "/available-Courses/:id",
-    //   verifyJWT,
-    //   verifyAdmin,
-    //   async (req, res) => {
-    //     const id = req.params.id;
-    //     const updates = req.body;
-
-    //     try {
-    //       const updatedCourse =
-    //         await availableCoursesCollection.findByIdAndUpdate(id, updates, {
-    //           new: true,
-    //         });
-
-    //       if (!updatedCourse) {
-    //         return res.status(404).send();
-    //       }
-
-    //       res.send(updatedCourse);
-    //     } catch (error) {
-    //       res.status(500).send(error);
-    //     }
-    //   }
-    // );
-
     // api to post course
 
     app.post(
@@ -386,7 +372,8 @@ async function run() {
       }
     );
 
-    //
+    //  api to deny the courses collection
+
     app.patch(
       "/available-Courses/deny/:id",
       verifyJWT,
@@ -411,6 +398,24 @@ async function run() {
         res.send(result);
       }
     );
+
+    //  api for instructor routes the course he added......
+
+    app.get(
+      "/available-Courses-instructors",
+      verifyJWT,
+      verifyInstructor,
+      async (req, res) => {
+        const email = req.decoded.email;
+        console.log(email);
+
+        const query = { instructorEmail: email };
+
+        const result = await availableCoursesCollection.find(query).toArray();
+        res.send(result);
+      }
+    );
+
     //
     //
     //
