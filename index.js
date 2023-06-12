@@ -84,6 +84,8 @@ async function run() {
       .db("melodyDB")
       .collection("availableCourses");
 
+    const paymentCollection = client.db("melodyDB").collection("payments");
+
     //
     //
     //
@@ -291,6 +293,12 @@ async function run() {
 
     app.post("/booked-courses", async (req, res) => {
       const course = req.body;
+      const id = req.body._id;
+
+      const convertedId = new ObjectId(id);
+
+      course._id = convertedId;
+
       console.log(course);
 
       const result = await bookedCollection.insertOne(course);
@@ -300,7 +308,7 @@ async function run() {
     app.delete("/booked-courses/:id", async (req, res) => {
       const id = req.params.id;
 
-      const query = { _id: id };
+      const query = { _id: new ObjectId(id) };
 
       const result = await bookedCollection.deleteOne(query);
 
@@ -441,6 +449,32 @@ async function run() {
       res.send({
         clientSecret: paymentIntent.client_secret,
       });
+    });
+
+    //  payment related apis
+
+    app.post("/payments", verifyJWT, async (req, res) => {
+      const payment = req.body;
+      const insertResult = await paymentCollection.insertOne(payment);
+
+      const query = {
+        _id: { $in: payment.cartCourses.map((id) => new ObjectId(id)) },
+      };
+
+      const deleteResult = await bookedCollection.deleteOne(query);
+
+      res.send({ insertResult, deleteResult });
+
+    });
+
+    //  payment of user show data ....
+
+    app.get("/payment-details", verifyJWT, async (req, res) => {
+
+
+
+
+
     });
 
     //
