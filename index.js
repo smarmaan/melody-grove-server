@@ -262,7 +262,6 @@ async function run() {
 
     app.get("/booked-courses", verifyJWT, async (req, res) => {
       const email = req.query.email;
-      // console.log(email);
 
       if (!email) {
         res.send([]);
@@ -282,26 +281,13 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/booked-courses/payment/:id", verifyJWT, async (req, res) => {
-      const id = req.query.id;
-
-      const query = { _id: id };
-
-      const result = await bookedCollection.findOne(query);
-      res.send(result);
-    });
-
     app.post("/booked-courses", async (req, res) => {
       const course = req.body;
-      const id = req.body._id;
 
-      const convertedId = new ObjectId(id);
-
-      course._id = convertedId;
-
-      console.log(course);
+      // console.log(course);
 
       const result = await bookedCollection.insertOne(course);
+
       res.send(result);
     });
 
@@ -413,7 +399,7 @@ async function run() {
       verifyInstructor,
       async (req, res) => {
         const email = req.decoded.email;
-        console.log(email);
+        // console.log(email);
 
         const query = { instructorEmail: email };
 
@@ -458,23 +444,75 @@ async function run() {
       const insertResult = await paymentCollection.insertOne(payment);
 
       const query = {
-        _id: { $in: payment.cartCourses.map((id) => new ObjectId(id)) },
+        _id: new ObjectId(payment.coursePurchasedID),
       };
 
       const deleteResult = await bookedCollection.deleteOne(query);
 
-      res.send({ insertResult, deleteResult });
+      const filter = {
+        _id: new ObjectId(payment.courseId),
+      };
 
+      const findCourse = await availableCoursesCollection.findOne(filter);
+
+      console.log(findCourse);
+      const updateDoc = {
+        $set: {
+          seats: findCourse.seats - 1,
+          // enrolled: findCourse.enrolled + 1,
+        },
+      };
+
+      const patchResult = await availableCoursesCollection.updateOne(
+        filter,
+        updateDoc
+      );
+
+      res.send({ insertResult, deleteResult, patchResult });
     });
 
-    //  payment of user show data ....
+    //
+    //
+    //
+    //
+    //
+    //
 
-    app.get("/payment-details", verifyJWT, async (req, res) => {
+    //  dashboard info...
 
+    app.get("/user-stats/:email", async (req, res) => {
+      const email = req.params.email;
 
+      const query = { email: email };
 
+      const result = await paymentCollection
+        .find(query)
+        .sort({ date: -1 })
+        .toArray();
 
+      res.send(result);
+    });
 
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+
+    app.get("/booked-courses/payment/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      const query = { email: email };
+
+      const result = await bookedCollection.find(query).toArray;
+
+      res.send(result);
     });
 
     //
