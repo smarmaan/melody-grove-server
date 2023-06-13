@@ -359,6 +359,7 @@ async function run() {
       verifyInstructor,
       async (req, res) => {
         const newCourse = req.body;
+        console.log(newCourse);
         const result = await availableCoursesCollection.insertOne(newCourse);
         res.send(result);
       }
@@ -459,7 +460,7 @@ async function run() {
       const updateDoc = {
         $set: {
           seats: findCourse.seats - 1,
-          // enrolled: findCourse.enrolled + 1,
+          enrolled: findCourse.enrolled + 1,
         },
       };
 
