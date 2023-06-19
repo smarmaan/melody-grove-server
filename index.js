@@ -422,6 +422,12 @@ async function run() {
       res.send(result);
     });
 
+    app.post("/reviews", async (req, res) => {
+      const feedback = req.body;
+      const result = await reviewsCollection.insertOne(feedback);
+      res.send(result);
+    });
+
     //  create payment intent
 
     app.post("/create-payment-intent", verifyJWT, async (req, res) => {
